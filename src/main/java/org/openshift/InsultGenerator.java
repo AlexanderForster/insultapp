@@ -16,23 +16,30 @@ public class InsultGenerator {
 			databaseURL += "/" + System.getenv("POSTGRESQL_DATABASE");
 			String username = System.getenv("POSTGRESQL_USER");
 			String password = System.getenv("PGPASSWORD");
-			Connection connection = DriverManager.getConnection(databaseURL, username, password);
+			try (Connection connection = DriverManager
+					.getConnection(databaseURL, username, password)) {
 
-			if (connection != null) {
-				String SQL = "select a.string AS first, b.string AS second, c.string AS noun from short_adjective a , long_adjective b, noun c ORDER BY random() limit 1";
-				Statement stmt = connection.createStatement();
-				ResultSet rs = stmt.executeQuery(SQL);
+				if (connection != null) {
+					String sql = "select a.string AS first, b.string AS second, c.string AS noun from short_adjective a , long_adjective b, noun c ORDER BY random() limit 1";
+					try (Statement stmt = connection.createStatement()) {
+						try (ResultSet rs = stmt.executeQuery(sql)) {
 
-				while (rs.next()) {
-					if (vowels.indexOf(rs.getString("first").charAt(0)) == -1) {
-						article = "a";
+							while (rs.next()) {
+								if (vowels.indexOf(
+										rs.getString("first").charAt(0))
+										== -1) {
+									article = "a";
+								}
+
+								theInsult = String
+										.format("Thou art %s %s %s %s!",
+												article, rs.getString("first"),
+												rs.getString("second"),
+												rs.getString("noun"));
+							}
+						}
 					}
-
-					theInsult = String.format("Thou art %s %s %s %s!", article,
-						rs.getString("first"), rs.getString("second"), rs.getString("noun"));
 				}
-				rs.close();
-				connection.close();
 			}
 		} catch (Exception e) {
 			return "Database connection problem!";
