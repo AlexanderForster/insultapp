@@ -8,7 +8,7 @@ public class InsultGenerator {
 	public String generateInsult() {
 		String vowels = "AEIOU";
 		String article = "an";
-		String theInsult = "";
+		S1tring theInsult = "";
 
 		try {
 			String databaseURL = "jdbc:postgresql://";
